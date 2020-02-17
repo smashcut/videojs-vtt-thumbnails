@@ -1,4 +1,6 @@
 import videojs from 'video.js';
+import window from 'global/window';
+import document from 'global/document';
 import { version as VERSION } from '../package.json';
 // import request from 'request';
 
@@ -6,48 +8,11 @@ import { version as VERSION } from '../package.json';
 const defaults = {};
 
 // Cache for image elements
-let cache = {};
+const cache = {};
 
 // Cross-compatibility for Video.js 5 and 6.
 const registerPlugin = videojs.registerPlugin || videojs.plugin;
 // const dom = videojs.dom || videojs;
-
-/**
- * Function to invoke when the player is ready.
- *
- * This is a great place for your plugin to initialize itself. When this
- * function is called, the player will have its DOM and child components
- * in place.
- *
- * @function onPlayerReady
- * @param    {Player} player
- *           A Video.js player object.
- *
- * @param    {Object} [options={}]
- *           A plain object containing options for the plugin.
- */
-const onPlayerReady = (player, options) => {
-  player.addClass('vjs-vtt-thumbnails');
-  player.vttThumbnails = new vttThumbnailsPlugin(player, options);
-};
-
-/**
- * A video.js plugin.
- *
- * In the plugin function, the value of `this` is a video.js `Player`
- * instance. You cannot rely on the player being in a "ready" state here,
- * depending on how the plugin is invoked. This may or may not be important
- * to you; if not, remove the wait for "ready"!
- *
- * @function vttThumbnails
- * @param    {Object} [options={}]
- *           An object of options left to the plugin author to define.
- */
-const vttThumbnails = function(options) {
-  this.ready(() => {
-    onPlayerReady(this, videojs.mergeOptions(defaults, options));
-  });
-};
 
 /**
  * VTT Thumbnails class.
@@ -55,7 +20,7 @@ const vttThumbnails = function(options) {
  * This class performs all functions related to displaying the vtt
  * thumbnails.
  */
-class vttThumbnailsPlugin {
+class VttThumbnailsPlugin {
 
   /**
    * Plugin class constructor, called by videojs on
@@ -88,10 +53,14 @@ class vttThumbnailsPlugin {
   }
 
   resetPlugin() {
-    this.thumbnailHolder && this.thumbnailHolder.parentNode.removeChild(this.thumbnailHolder);
-    this.progressBar && this.progressBar.removeEventListener('mouseenter', this.registeredEvents.progressBarMouseEnter);
-    this.progressBar && this.progressBar.removeEventListener('mouseleave', this.registeredEvents.progressBarMouseLeave);
-    this.progressBar && this.progressBar.removeEventListener('mousemove', this.registeredEvents.progressBarMouseMove);
+    if (this.thumbnailHolder) {
+      this.thumbnailHolder.parentNode.removeChild(this.thumbnailHolder);
+    }
+    if (this.progressBar) {
+      this.progressBar.removeEventListener('mouseenter', this.registeredEvents.progressBarMouseEnter);
+      this.progressBar.removeEventListener('mouseleave', this.registeredEvents.progressBarMouseLeave);
+      this.progressBar.removeEventListener('mousemove', this.registeredEvents.progressBarMouseMove);
+    }
     delete this.registeredEvents.progressBarMouseEnter;
     delete this.registeredEvents.progressBarMouseLeave;
     delete this.registeredEvents.progressBarMouseMove;
@@ -116,6 +85,7 @@ class vttThumbnailsPlugin {
     }
     const baseUrl = this.getBaseUrl();
     const url = this.getFullyQualifiedUrl(this.options.src, baseUrl);
+
     this.getVttFile(url)
       .then((data) => {
         this.vttData = this.processVtt(data);
@@ -126,7 +96,7 @@ class vttThumbnailsPlugin {
   /**
    * Builds a base URL should we require one.
    *
-   * @returns {string}
+   * @return {string}
    */
   getBaseUrl() {
     return [
@@ -142,11 +112,12 @@ class vttThumbnailsPlugin {
    * Grabs the contents of the VTT file.
    *
    * @param url
-   * @returns {Promise}
+   * @return {Promise}
    */
   getVttFile(url) {
     return new Promise((resolve, reject) => {
-      const req = new XMLHttpRequest();
+      const req = new window.XMLHttpRequest();
+
       req.data = {
         resolve
       };
@@ -165,22 +136,29 @@ class vttThumbnailsPlugin {
 
   setupThumbnailElement(data) {
     const mouseDisplay = this.player.$('.vjs-mouse-display');
-    this.progressBar = this.player.$('.vjs-progress-control');
     const thumbHolder = document.createElement('div');
+
+    this.progressBar = this.player.$('.vjs-progress-control');
     thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
     this.progressBar.appendChild(thumbHolder);
     this.thumbnailHolder = thumbHolder;
     if (mouseDisplay) {
       mouseDisplay.classList.add('vjs-hidden');
     }
-    this.registeredEvents.progressBarMouseEnter = () => { return this.onBarMouseenter(); };
-    this.registeredEvents.progressBarMouseLeave = () => { return this.onBarMouseleave(); };
+    this.registeredEvents.progressBarMouseEnter = () => {
+      return this.onBarMouseenter();
+    };
+    this.registeredEvents.progressBarMouseLeave = () => {
+      return this.onBarMouseleave();
+    };
     this.progressBar.addEventListener('mouseenter', this.registeredEvents.progressBarMouseEnter);
     this.progressBar.addEventListener('mouseleave', this.registeredEvents.progressBarMouseLeave);
   }
 
   onBarMouseenter() {
-    this.mouseMoveCallback = (e) => { this.onBarMousemove(e); };
+    this.mouseMoveCallback = (e) => {
+      this.onBarMousemove(e);
+    };
     this.registeredEvents.progressBarMouseMove = this.mouseMoveCallback;
     this.progressBar.addEventListener('mousemove', this.registeredEvents.progressBarMouseMove);
     this.showThumbnailHolder();
@@ -196,6 +174,7 @@ class vttThumbnailsPlugin {
   getXCoord(bar, mouseX) {
     const rect = bar.getBoundingClientRect();
     const docEl = document.documentElement;
+
     return mouseX - (rect.left + (window.pageXOffset || docEl.scrollLeft || 0));
   }
 
@@ -208,11 +187,13 @@ class vttThumbnailsPlugin {
 
   getStyleForTime(time) {
     for (let i = 0; i < this.vttData.length; ++i) {
-      let item = this.vttData[i];
+      const item = this.vttData[i];
+
       if (time >= item.start && time < item.end) {
         // Cache miss
         if (item.css.url && !cache[item.css.url]) {
-          let image = new Image();
+          const image = new window.Image();
+
           image.src = item.css.url;
           cache[item.css.url] = image;
         }
@@ -240,17 +221,16 @@ class vttThumbnailsPlugin {
     }
 
     const xPos = percent * width;
-    const thumbnailWidth = parseInt(currentStyle.width);
+    const thumbnailWidth = parseInt(currentStyle.width, 10);
     const halfthumbnailWidth = thumbnailWidth >> 1;
     const marginRight = width - (xPos + halfthumbnailWidth);
     const marginLeft = xPos - halfthumbnailWidth;
+
     if (marginLeft > 0 && marginRight > 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + (xPos - halfthumbnailWidth) + 'px)';
-    }
-    else if (marginLeft <= 0) {
+    } else if (marginLeft <= 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + 0 + 'px)';
-    }
-    else if (marginRight <= 0) {
+    } else if (marginRight <= 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + (width - thumbnailWidth) + 'px)';
     }
 
@@ -259,7 +239,7 @@ class vttThumbnailsPlugin {
     }
     this.lastStyle = currentStyle;
 
-    for (let style in currentStyle) {
+    for (const style in currentStyle) {
       if (currentStyle.hasOwnProperty(style)) {
         this.thumbnailHolder.style[style] = currentStyle[style];
       }
@@ -269,15 +249,16 @@ class vttThumbnailsPlugin {
   processVtt(data) {
     const processedVtts = [];
     const vttDefinitions = data.split(/[\r\n][\r\n]/i);
+
     vttDefinitions.forEach((vttDef) => {
       if (vttDef.match(/([0-9]{2}:)?([0-9]{2}:)?[0-9]{2}(.[0-9]{3})?( ?--> ?)([0-9]{2}:)?([0-9]{2}:)?[0-9]{2}(.[0-9]{3})?[\r\n]{1}.*/gi)) {
-        let vttDefSplit = vttDef.split(/[\r\n]/i);
-        let vttTiming = vttDefSplit[0];
-        let vttTimingSplit = vttTiming.split(/ ?--> ?/i);
-        let vttTimeStart = vttTimingSplit[0];
-        let vttTimeEnd = vttTimingSplit[1];
-        let vttImageDef = vttDefSplit[1];
-        let vttCssDef = this.getVttCss(vttImageDef);
+        const vttDefSplit = vttDef.split(/[\r\n]/i);
+        const vttTiming = vttDefSplit[0];
+        const vttTimingSplit = vttTiming.split(/ ?--> ?/i);
+        const vttTimeStart = vttTimingSplit[0];
+        const vttTimeEnd = vttTimingSplit[1];
+        const vttImageDef = vttDefSplit[1];
+        const vttCssDef = this.getVttCss(vttImageDef);
 
         processedVtts.push({
           start: this.getSecondsFromTimestamp(vttTimeStart),
@@ -321,6 +302,7 @@ class vttThumbnailsPlugin {
     const imageUrl = imageDefSplit[0];
     const imageCoords = imageDefSplit[1];
     const splitCoords = imageCoords.match(/[0-9]+/gi);
+
     return {
       x: splitCoords[0],
       y: splitCoords[1],
@@ -331,11 +313,11 @@ class vttThumbnailsPlugin {
   }
 
   getVttCss(vttImageDef) {
-
     const cssObj = {};
 
     // If there isn't a protocol, use the VTT source URL.
     let baseSplit;
+
     if (this.options.src.indexOf('//') >= 0) {
       baseSplit = this.options.src.split(/([^\/]*)$/gi).shift();
     } else {
@@ -350,6 +332,7 @@ class vttThumbnailsPlugin {
     }
 
     const imageProps = this.getPropsFromDef(vttImageDef);
+
     cssObj.background = 'url("' + imageProps.image + '") no-repeat -' + imageProps.x + 'px -' + imageProps.y + 'px';
     cssObj.width = imageProps.w + 'px';
     cssObj.height = imageProps.h + 'px';
@@ -362,21 +345,23 @@ class vttThumbnailsPlugin {
     const splitStampMilliseconds = timestamp.split('.');
     const timeParts = splitStampMilliseconds[0];
     const timePartsSplit = timeParts.split(':');
+
     return {
-      milliseconds: parseInt(splitStampMilliseconds[1]) || 0,
-      seconds: parseInt(timePartsSplit.pop()) || 0,
-      minutes: parseInt(timePartsSplit.pop()) || 0,
-      hours: parseInt(timePartsSplit.pop()) || 0
+      milliseconds: parseInt(splitStampMilliseconds[1], 10) || 0,
+      seconds: parseInt(timePartsSplit.pop(), 10) || 0,
+      minutes: parseInt(timePartsSplit.pop(), 10) || 0,
+      hours: parseInt(timePartsSplit.pop(), 10) || 0
     };
 
   }
 
   getSecondsFromTimestamp(timestamp) {
     const timestampParts = this.doconstructTimestamp(timestamp);
+
     return parseInt((timestampParts.hours * (60 * 60)) +
       (timestampParts.minutes * 60) +
       timestampParts.seconds +
-      (timestampParts.milliseconds / 1000));
+      (timestampParts.milliseconds / 1000), 10);
   }
 
   trim(str, charlist) {
@@ -406,6 +391,7 @@ class vttThumbnailsPlugin {
     ].join('');
     let l = 0;
     let i = 0;
+
     str += '';
     if (charlist) {
       whitespace = (charlist + '').replace(/([[\]().?/*{}+$^:])/g, '$1');
@@ -428,6 +414,43 @@ class vttThumbnailsPlugin {
   }
 
 }
+
+/**
+ * Function to invoke when the player is ready.
+ *
+ * This is a great place for your plugin to initialize itself. When this
+ * function is called, the player will have its DOM and child components
+ * in place.
+ *
+ * @function onPlayerReady
+ * @param    {Player} player
+ *           A Video.js player object.
+ *
+ * @param    {Object} [options={}]
+ *           A plain object containing options for the plugin.
+ */
+const onPlayerReady = (player, options) => {
+  player.addClass('vjs-vtt-thumbnails');
+  player.vttThumbnails = new VttThumbnailsPlugin(player, options);
+};
+
+/**
+ * A video.js plugin.
+ *
+ * In the plugin function, the value of `this` is a video.js `Player`
+ * instance. You cannot rely on the player being in a "ready" state here,
+ * depending on how the plugin is invoked. This may or may not be important
+ * to you; if not, remove the wait for "ready"!
+ *
+ * @function vttThumbnails
+ * @param    {Object} [options={}]
+ *           An object of options left to the plugin author to define.
+ */
+const vttThumbnails = function(options) {
+  this.ready(() => {
+    onPlayerReady(this, videojs.mergeOptions(defaults, options));
+  });
+};
 
 // Register the plugin with video.js.
 registerPlugin('vttThumbnails', vttThumbnails);

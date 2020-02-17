@@ -32,8 +32,7 @@
     "lint:errors": "vjsstandard --errors",
     "start": "npm-run-all -p start:server watch",
     "start:server": "static -a 0.0.0.0 -p 9999 -H '{\"Cache-Control\": \"no-cache, must-revalidate\"}' .",
-    "Xpretest": "npm-run-all lint build",
-    "pretest": "npm-run-all build",
+    "pretest": "npm-run-all lint build",
     "test": "karma start test/karma.conf.js",
     "preversion": "npm test",
     "version": "node scripts/version.js",
@@ -44,7 +43,7 @@
     "watch:js-umd": "rollup -c scripts/umd.rollup.config.js -w",
     "watch:test": "rollup -c scripts/test.rollup.config.js -w",
     "prepublish": "npm run build",
-    "Xprepush": "npm run lint",
+    "prepush": "npm run lint",
     "precommit": "npm run docs:toc && git add README.md"
   },
   "keywords": [
@@ -107,6 +106,7 @@
     "semver": "^5.3.0",
     "sinon": "^2.2.0",
     "uglify-js": "^3.0.7",
+    "video.js": "smashcut/video.js#smashcut/develop",
     "videojs-standard": "^6.0.0"
   },
   "peerDependencies": {
