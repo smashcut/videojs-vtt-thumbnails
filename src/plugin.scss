@@ -10,9 +10,23 @@
   .vjs-vtt-thumbnail-display {
     position: absolute;
     transition: transform .1s, opacity .2s;
-    bottom: 85%;
+    bottom: 20px;
     pointer-events: none;
     box-shadow: 0 0 7px rgba(0,0,0,.6);
+    border: 1px solid #363636;
+    border-bottom: 2px solid white;
+
+    .vjs-vtt-thumbnail-arrow {
+      border: .5em solid transparent;
+      border-top-color: white;
+      height: 0;
+      left: 50%;
+      margin-left: -.65em;
+      pointer-events: none;
+      position: absolute;
+      top: 100%;
+      width: 0;
+    }
   }
 
 }

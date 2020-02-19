@@ -1,9 +1,3 @@
-/**
- * videojs-vtt-thumbnails
- * @version 0.0.13-smashcut
- * @copyright 2020 Chris Boustead <chris@forgemotion.com>
- * @license MIT
- */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('video.js')) :
 	typeof define === 'function' && define.amd ? define(['video.js'], factory) :
@@ -323,11 +317,15 @@ var VttThumbnailsPlugin = function () {
 
     var mouseDisplay = this.player.$('.vjs-mouse-display');
     var thumbHolder = document_1.createElement('div');
+    var arrow = document_1.createElement('div');
+
+    thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
+    arrow.setAttribute('class', 'vjs-vtt-thumbnail-arrow');
+    thumbHolder.appendChild(arrow);
+    this.thumbnailHolder = thumbHolder;
 
     this.progressBar = this.player.$('.vjs-progress-control');
-    thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
     this.progressBar.appendChild(thumbHolder);
-    this.thumbnailHolder = thumbHolder;
     if (mouseDisplay) {
       mouseDisplay.classList.add('vjs-hidden');
     }

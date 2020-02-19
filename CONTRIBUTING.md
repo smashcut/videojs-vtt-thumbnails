@@ -22,9 +22,9 @@ Testing is a crucial part of any software project. For all but the most trivial 
 
 - In all available and supported browsers: `npm test`
 - In a specific browser: `npm run test:chrome`, `npm run test:firefox`, etc.
-- While development server is running (`npm start`), navigate to [`http://localhost:9999/test/`][local]
+- While development server is running (`npm start`), navigate to [`http://localhost:9998/test/`][local]
 
 
 [karma]: http://karma-runner.github.io/
-[local]: http://localhost:9999/test/
+[local]: http://localhost:9998/test/
 [conventions]: https://github.com/videojs/generator-videojs-plugin/blob/master/docs/conventions.md

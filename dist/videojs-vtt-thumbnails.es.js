@@ -270,11 +270,15 @@ var VttThumbnailsPlugin = function () {
 
     var mouseDisplay = this.player.$('.vjs-mouse-display');
     var thumbHolder = document.createElement('div');
+    var arrow = document.createElement('div');
+
+    thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
+    arrow.setAttribute('class', 'vjs-vtt-thumbnail-arrow');
+    thumbHolder.appendChild(arrow);
+    this.thumbnailHolder = thumbHolder;
 
     this.progressBar = this.player.$('.vjs-progress-control');
-    thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
     this.progressBar.appendChild(thumbHolder);
-    this.thumbnailHolder = thumbHolder;
     if (mouseDisplay) {
       mouseDisplay.classList.add('vjs-hidden');
     }
