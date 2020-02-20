@@ -318,11 +318,17 @@ var VttThumbnailsPlugin = function () {
     var mouseDisplay = this.player.$('.vjs-mouse-display');
     var thumbHolder = document_1.createElement('div');
     var arrow = document_1.createElement('div');
+    var time = document_1.createElement('div');
 
     thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
     arrow.setAttribute('class', 'vjs-vtt-thumbnail-arrow');
+    time.setAttribute('class', 'vjs-vtt-thumbnail-time');
+
     thumbHolder.appendChild(arrow);
+    thumbHolder.appendChild(time);
     this.thumbnailHolder = thumbHolder;
+    this.arrow = arrow;
+    this.time = time;
 
     this.progressBar = this.player.$('.vjs-progress-control');
     this.progressBar.appendChild(thumbHolder);
@@ -384,6 +390,7 @@ var VttThumbnailsPlugin = function () {
         return item.css;
       }
     }
+    return this.vttData[0];
   };
 
   VttThumbnailsPlugin.prototype.showThumbnailHolder = function showThumbnailHolder() {
@@ -392,6 +399,22 @@ var VttThumbnailsPlugin = function () {
 
   VttThumbnailsPlugin.prototype.hideThumbnailHolder = function hideThumbnailHolder() {
     this.thumbnailHolder.style.opacity = '0';
+  };
+
+  VttThumbnailsPlugin.prototype.formatTime = function formatTime(secs) {
+    var s = Math.round(secs % 60);
+    var m = Math.floor(secs / 60) % 60;
+    var h = Math.floor(secs / 3600);
+
+    var twoPlaces = function twoPlaces(x) {
+      return x < 10 ? '0' + x : '' + x;
+    };
+
+    if (h > 0) {
+      return twoPlaces(h) + ':' + twoPlaces(m) + ':' + twoPlaces(s);
+    } else {
+      return twoPlaces(m) + ':' + twoPlaces(s);
+    }
   };
 
   VttThumbnailsPlugin.prototype.updateThumbnailStyle = function updateThumbnailStyle(percent, width) {
@@ -403,18 +426,23 @@ var VttThumbnailsPlugin = function () {
       return this.hideThumbnailHolder();
     }
 
+    this.time.innerHTML = this.formatTime(time);
+
     var xPos = percent * width;
     var thumbnailWidth = parseInt(currentStyle.width, 10);
-    var halfthumbnailWidth = thumbnailWidth >> 1;
-    var marginRight = width - (xPos + halfthumbnailWidth);
-    var marginLeft = xPos - halfthumbnailWidth;
+    var halfThumbnailWidth = thumbnailWidth >> 1;
+    var marginRight = width - (xPos + halfThumbnailWidth);
+    var marginLeft = xPos - halfThumbnailWidth;
 
     if (marginLeft > 0 && marginRight > 0) {
-      this.thumbnailHolder.style.transform = 'translateX(' + (xPos - halfthumbnailWidth) + 'px)';
+      this.thumbnailHolder.style.transform = 'translateX(' + (xPos - halfThumbnailWidth) + 'px)';
+      this.arrow.style.removeProperty('left');
     } else if (marginLeft <= 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + 0 + 'px)';
+      this.arrow.style.left = xPos + 'px';
     } else if (marginRight <= 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + (width - thumbnailWidth) + 'px)';
+      this.arrow.style.left = xPos - width + thumbnailWidth + 'px';
     }
 
     if (this.lastStyle && this.lastStyle === currentStyle) {
@@ -519,7 +547,7 @@ var VttThumbnailsPlugin = function () {
     return cssObj;
   };
 
-  VttThumbnailsPlugin.prototype.doconstructTimestamp = function doconstructTimestamp(timestamp) {
+  VttThumbnailsPlugin.prototype.doConstructTimestamp = function doConstructTimestamp(timestamp) {
     var splitStampMilliseconds = timestamp.split('.');
     var timeParts = splitStampMilliseconds[0];
     var timePartsSplit = timeParts.split(':');
@@ -533,7 +561,7 @@ var VttThumbnailsPlugin = function () {
   };
 
   VttThumbnailsPlugin.prototype.getSecondsFromTimestamp = function getSecondsFromTimestamp(timestamp) {
-    var timestampParts = this.doconstructTimestamp(timestamp);
+    var timestampParts = this.doConstructTimestamp(timestamp);
 
     return parseInt(timestampParts.hours * (60 * 60) + timestampParts.minutes * 60 + timestampParts.seconds + timestampParts.milliseconds / 1000, 10);
   };

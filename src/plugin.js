@@ -138,11 +138,17 @@ class VttThumbnailsPlugin {
     const mouseDisplay = this.player.$('.vjs-mouse-display');
     const thumbHolder = document.createElement('div');
     const arrow = document.createElement('div');
+    const time = document.createElement('div');
 
     thumbHolder.setAttribute('class', 'vjs-vtt-thumbnail-display');
     arrow.setAttribute('class', 'vjs-vtt-thumbnail-arrow');
+    time.setAttribute('class', 'vjs-vtt-thumbnail-time');
+
     thumbHolder.appendChild(arrow);
+    thumbHolder.appendChild(time);
     this.thumbnailHolder = thumbHolder;
+    this.arrow = arrow;
+    this.time = time;
 
     this.progressBar = this.player.$('.vjs-progress-control');
     this.progressBar.appendChild(thumbHolder);
@@ -205,6 +211,7 @@ class VttThumbnailsPlugin {
         return item.css;
       }
     }
+    return this.vttData[0]
   }
 
   showThumbnailHolder() {
@@ -213,6 +220,22 @@ class VttThumbnailsPlugin {
 
   hideThumbnailHolder() {
     this.thumbnailHolder.style.opacity = '0';
+  }
+
+  formatTime(secs){
+    let s = Math.round(secs % 60);
+    let m = Math.floor(secs / 60) % 60;
+    let h = Math.floor(secs / 3600);
+
+    let twoPlaces = x => {
+      return x < 10 ? '0' + x : '' + x;
+    };
+
+    if (h > 0) {
+      return twoPlaces(h) + ':' + twoPlaces(m) + ':' + twoPlaces(s);
+    } else {
+      return twoPlaces(m) + ':' + twoPlaces(s);
+    }
   }
 
   updateThumbnailStyle(percent, width) {
@@ -224,18 +247,23 @@ class VttThumbnailsPlugin {
       return this.hideThumbnailHolder();
     }
 
+    this.time.innerHTML = this.formatTime(time);
+
     const xPos = percent * width;
     const thumbnailWidth = parseInt(currentStyle.width, 10);
-    const halfthumbnailWidth = thumbnailWidth >> 1;
-    const marginRight = width - (xPos + halfthumbnailWidth);
-    const marginLeft = xPos - halfthumbnailWidth;
+    const halfThumbnailWidth = thumbnailWidth >> 1;
+    const marginRight = width - (xPos + halfThumbnailWidth);
+    const marginLeft = xPos - halfThumbnailWidth;
 
     if (marginLeft > 0 && marginRight > 0) {
-      this.thumbnailHolder.style.transform = 'translateX(' + (xPos - halfthumbnailWidth) + 'px)';
+      this.thumbnailHolder.style.transform = 'translateX(' + (xPos - halfThumbnailWidth) + 'px)';
+      this.arrow.style.removeProperty('left');
     } else if (marginLeft <= 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + 0 + 'px)';
+      this.arrow.style.left = xPos + 'px';
     } else if (marginRight <= 0) {
       this.thumbnailHolder.style.transform = 'translateX(' + (width - thumbnailWidth) + 'px)';
+      this.arrow.style.left = (xPos - width + thumbnailWidth) + 'px';
     }
 
     if (this.lastStyle && this.lastStyle === currentStyle) {
@@ -345,7 +373,7 @@ class VttThumbnailsPlugin {
     return cssObj;
   }
 
-  doconstructTimestamp(timestamp) {
+  doConstructTimestamp(timestamp) {
     const splitStampMilliseconds = timestamp.split('.');
     const timeParts = splitStampMilliseconds[0];
     const timePartsSplit = timeParts.split(':');
@@ -360,7 +388,7 @@ class VttThumbnailsPlugin {
   }
 
   getSecondsFromTimestamp(timestamp) {
-    const timestampParts = this.doconstructTimestamp(timestamp);
+    const timestampParts = this.doConstructTimestamp(timestamp);
 
     return parseInt((timestampParts.hours * (60 * 60)) +
       (timestampParts.minutes * 60) +

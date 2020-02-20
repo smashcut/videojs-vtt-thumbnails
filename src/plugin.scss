@@ -4,10 +4,11 @@
 
   // This class is added to the video.js element by the plugin by default.
   &.vjs-vtt-thumbnails {
-    display: block;
+    display: block; // weird, that it sets any style
   }
 
   .vjs-vtt-thumbnail-display {
+    opacity: 0;
     position: absolute;
     transition: transform .1s, opacity .2s;
     bottom: 20px;
@@ -17,15 +18,24 @@
     border-bottom: 2px solid white;
 
     .vjs-vtt-thumbnail-arrow {
-      border: .5em solid transparent;
+      border: .8em solid transparent; // size of the triangle
       border-top-color: white;
       height: 0;
-      left: 50%;
-      margin-left: -.65em;
+      left: calc(50% - 0.8em / 2);
+      // margin-left: -.65em;
       pointer-events: none;
       position: absolute;
       top: 100%;
       width: 0;
+    }
+
+    .vjs-vtt-thumbnail-time {
+      width: 100%;
+      text-align: center;
+      font-size: 1.3em;
+      bottom: 10px;
+      font-face: Roboto;
+      position: absolute;
     }
   }
 

@@ -22,8 +22,8 @@
 </head>
 <body>
   <video id="videojs-vtt-thumbnails-player" class="video-js vjs-default-skin" controls>
-    <source src="//vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
-    <source src="//vjs.zencdn.net/v/oceans.webm" type='video/webm'>
+    <source src='//bitdash-a.akamaihd.net/content/sintel/sintel.mpd' type='application/dash+xml'/>
+    <source src='//bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8' type='application/x-mpegURL'/>
   </video>
   <ul>
     <li><a href="test/">Run unit tests in browser.</a></li>
@@ -36,7 +36,7 @@
     (function(window, videojs) {
       var player = window.player = videojs('videojs-vtt-thumbnails-player');
       player.vttThumbnails({
-        src: 'example/thumbs.vtt'
+        src: '//bitdash-a.akamaihd.net/content/sintel/sprite/sprite.vtt'
       });
     }(window, window.videojs));
   </script>
