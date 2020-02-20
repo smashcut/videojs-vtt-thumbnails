@@ -1,3 +1,9 @@
+/**
+ * videojs-vtt-thumbnails
+ * @version 0.0.13-smashcut
+ * @copyright 2020 Chris Boustead <chris@forgemotion.com>
+ * @license MIT
+ */
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('video.js')) :
 	typeof define === 'function' && define.amd ? define(['video.js'], factory) :
