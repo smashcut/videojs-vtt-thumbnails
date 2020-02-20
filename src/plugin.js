@@ -211,7 +211,6 @@ class VttThumbnailsPlugin {
         return item.css;
       }
     }
-    return this.vttData[0]
   }
 
   showThumbnailHolder() {
@@ -222,20 +221,19 @@ class VttThumbnailsPlugin {
     this.thumbnailHolder.style.opacity = '0';
   }
 
-  formatTime(secs){
-    let s = Math.round(secs % 60);
-    let m = Math.floor(secs / 60) % 60;
-    let h = Math.floor(secs / 3600);
+  formatTime(secs) {
+    const s = Math.round(secs % 60);
+    const m = Math.floor(secs / 60) % 60;
+    const h = Math.floor(secs / 3600);
 
-    let twoPlaces = x => {
+    const twoPlaces = x => {
       return x < 10 ? '0' + x : '' + x;
     };
 
     if (h > 0) {
       return twoPlaces(h) + ':' + twoPlaces(m) + ':' + twoPlaces(s);
-    } else {
-      return twoPlaces(m) + ':' + twoPlaces(s);
     }
+    return twoPlaces(m) + ':' + twoPlaces(s);
   }
 
   updateThumbnailStyle(percent, width) {

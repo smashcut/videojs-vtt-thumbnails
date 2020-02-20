@@ -396,7 +396,6 @@ var VttThumbnailsPlugin = function () {
         return item.css;
       }
     }
-    return this.vttData[0];
   };
 
   VttThumbnailsPlugin.prototype.showThumbnailHolder = function showThumbnailHolder() {
@@ -418,9 +417,8 @@ var VttThumbnailsPlugin = function () {
 
     if (h > 0) {
       return twoPlaces(h) + ':' + twoPlaces(m) + ':' + twoPlaces(s);
-    } else {
-      return twoPlaces(m) + ':' + twoPlaces(s);
     }
+    return twoPlaces(m) + ':' + twoPlaces(s);
   };
 
   VttThumbnailsPlugin.prototype.updateThumbnailStyle = function updateThumbnailStyle(percent, width) {
